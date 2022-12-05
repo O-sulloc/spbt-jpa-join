@@ -7,6 +7,7 @@ import com.study.spbtjpajoin.exception.ErrorCode;
 import com.study.spbtjpajoin.exception.HospitalException;
 import com.study.spbtjpajoin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
 
     public UserDto join(UserJoinRequest userJoinRequest) {
         userRepository.findByUserName(userJoinRequest.getUserName())
@@ -22,7 +24,8 @@ public class UserService {
                     //Custom Exception
                 });
 
-        User user = userRepository.save(userJoinRequest.toEntity()); //entity 들어가야됨
+        User user = userRepository.save(userJoinRequest.toEntity(encoder.encode(userJoinRequest.getPassword()))); //entity 들어가야됨
+        //encoder.encode(userJoinRequest.getPassword()); //password encode
 
         return new UserDto(user.getUserName(), user.getPassword());
     }
